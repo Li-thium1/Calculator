@@ -51,3 +51,37 @@ TASTE_ZAHL_KLICK    = (35,  35,  53)   # klick   -15
 (<rect(20, 844, 175, 136)>, '0'),   16 +
 (<rect(215, 844, 175, 136)>, '.'),  17
 (<rect(410, 844, 175, 136)>, '=')   18
+
+
+
+
+
+
+
+
+
+
+
+
+
+old code hover and click -> color change
+
+
+"""i = 1
+    
+
+    hitbox1 = pygame.Rect(margin,margin,key_width,key_height)
+
+    #change size when hovered
+
+    if hitbox1.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]):
+        pygame.draw.rect(screen,(70,70,88),(margin-5,margin-5,key_width+10,key_height+10)) 
+
+    else:  # normal color  
+        pygame.draw.rect(screen,(50, 50, 68),(margin,margin,key_width,key_height))
+
+    #change color when clicked
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.button == 1:
+            if pygame.mouse.get_pos()[0] > margin and pygame.mouse.get_pos()[0] < margin + key_width and pygame.mouse.get_pos()[1] > margin and pygame.mouse.get_pos()[1] < margin + key_height:
+                pygame.draw.rect(screen,(35,  35,  53),(margin-5,margin-5,key_width+10,key_height+10))"""

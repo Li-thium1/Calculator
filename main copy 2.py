@@ -1,7 +1,5 @@
 import sys
 import pygame
-import keyboard
-
 width = 800
 height = 1000
 
@@ -12,7 +10,7 @@ pygame.display.set_caption("Taschenrechner")
 
 clock = pygame.time.Clock()
 
-font = pygame.font.Font("Monocraft.ttf",110)
+font = pygame.font.Font("BitcountGridSingle_Roman-Regular.ttf",110)
 
 #key_size
 rows = 5
@@ -25,15 +23,25 @@ key_height =(height - textfeld - (rows+1) * margin) // rows
 
 width_num, height_num = font.size("1")
 
+print(width_num, height_num)
+
+
+tasten = []
+
 #colors
 key_color_num = (50, 50, 68)
 key_color_num_hover = (70,70,88)
 key_color_num_click = (35,  35,  53)
 
-
-pressed_key_on_keyboard = ""
-pressed_key_special = 0
-layout = [
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: 
+            pygame.quit()
+            sys.exit()
+    
+    screen.fill((20, 20, 30))
+    
+    layout = [
         ["C", "<", "%", "/"],
         ["7", "8", "9",  "*"],
         ["4", "5", "6",  "-"],
@@ -41,85 +49,37 @@ layout = [
         ["0",  ".", "="]
     ]
 
-keyboard_keys = [
-    [[pygame.K_DELETE, "C" , "c"], [pygame.K_BACKSPACE , "D" , "d"], "%", "/"],
-    ["7", "8", "9",  "*"],
-    ["4", "5", "6",  "-"],
-    ["1", "2", "3",  "+"],
-    ["0", [pygame.K_KP_PERIOD, "," , "."] , [pygame.K_RETURN, pygame.K_KP_ENTER]]
-]
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: 
-            pygame.quit()
-            sys.exit()
-        
-        if event.type == pygame.KEYDOWN: 
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-
-
-        if event.type == pygame.KEYDOWN:
-            pressed_key_on_keyboard = event.unicode
-
-            pressed_key_special = event.key
-
-    
-            
-        if event.type == pygame.KEYUP:   
-            pressed_key_on_keyboard = "" 
-            pressed_key_special = 0
-        
-
-    screen.fill((20, 20, 30))
-
-    
     for reihe_index, reihe in enumerate(layout):
         for spalte_index, zeichen in enumerate(reihe):
-            
             x = margin + spalte_index * (key_width + margin)
             y = margin + textfeld + reihe_index * (key_height + margin)
-
+            
             #special size for equal( = )
             if zeichen == "=":
                 key_width = key_width * 2 + margin
             
+            
             #hitbox of current block
             hitbox = pygame.Rect(x,y,key_width,key_height)
             
+            if pygame.key.get_pressed()[int(zeichen)]:
+                print(zeichen)
+             
+
             # num color when hovered
             if hitbox.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]):
                 pygame.draw.rect(screen,key_color_num_hover,(x - 7,y - 7,key_width + 14,key_height + 14))
-            
             # num normal condition
             else:
                 pygame.draw.rect(screen,key_color_num,(x,y,key_width,key_height))
-           
             # num color when clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #if left mousebutton
                 if event.button == 1:
-                    mouse_pos_x = pygame.mouse.get_pos()[0]
-                    mouse_pos_y = pygame.mouse.get_pos()[1]
-                    if mouse_pos_x > x and mouse_pos_x < x + key_width and mouse_pos_y > y and mouse_pos_y < y + key_height:
+
+                    if pygame.mouse.get_pos()[0] > x and pygame.mouse.get_pos()[0] < x + key_width and pygame.mouse.get_pos()[1] > y and pygame.mouse.get_pos()[1] < y + key_height:
                         pygame.draw.rect(screen,key_color_num_click,(x -7 ,y -7 ,key_width + 14 ,key_height + 14))
 
-            key = keyboard_keys[reihe_index][spalte_index]
-            #keyboard 
-            if isinstance(key, str):
-                if pressed_key_on_keyboard == key:
-                    pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width  ,key_height ))
-
-            if isinstance(key, int):
-                if pressed_key_special == key:
-                    pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width,key_height ))
-
-            if isinstance(key, list):
-                if pressed_key_special in key or pressed_key_on_keyboard in key:
-                    pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width,key_height ))
-                        
 
             width_num, height_num = font.size(zeichen)
             dx_num = ( key_width - width_num ) // 2
@@ -128,12 +88,28 @@ while True:
             x_num = x + dx_num
             y_num = y + dy_num
 
+            taste = pygame.Rect(x, y, key_width, key_height)
+            tasten.append((taste, zeichen))
+
             text = font.render(zeichen,True,(230, 230, 240))
 
             screen.blit(text, (x_num , y_num ))
 
             #reset key width
             key_width = (width - (columns+1) * margin) // columns
+    
+
+    """while i <= 3:
+        
+        i += 1"""
+
+
+   
+
+
+
+
+
     pygame.display.flip()
-    clock.tick(240)
+    clock.tick(60)
     
