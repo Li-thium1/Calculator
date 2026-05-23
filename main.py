@@ -1,6 +1,5 @@
 import sys
 import pygame
-import keyboard
 
 width = 800
 height = 1000
@@ -42,18 +41,24 @@ layout = [
     ]
 
 keyboard_keys = [
-    [[pygame.K_DELETE, "C" , "c"], [pygame.K_BACKSPACE , "D" , "d"], "%", "/"],
-    ["7", "8", "9",  "*"],
-    ["4", "5", "6",  "-"],
-    ["1", "2", "3",  "+"],
-    ["0", [pygame.K_KP_PERIOD, "," , "."] , [pygame.K_RETURN, pygame.K_KP_ENTER]]
+    [[pygame.K_DELETE, "C" , "c"], [pygame.K_BACKSPACE , "D" , "d"], ["%"], ["/"]],
+    [["7"], ["8"], ["9"],  ["*"]],
+    [["4"], ["5"], ["6"],  ["-"]],
+    [["1"], ["2"], ["3"],  ["+"]],
+    [["0"], [pygame.K_KP_PERIOD, "," , "."] , [pygame.K_RETURN, pygame.K_KP_ENTER,"="]]
 ]
+list_for_calc = []
+mouse_pos = (0,0)
+key_pressed = False
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: 
             pygame.quit()
             sys.exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
         
         if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_ESCAPE:
@@ -63,8 +68,8 @@ while True:
 
         if event.type == pygame.KEYDOWN:
             pressed_key_on_keyboard = event.unicode
-
             pressed_key_special = event.key
+            key_pressed = True
 
     
             
@@ -88,38 +93,44 @@ while True:
             
             #hitbox of current block
             hitbox = pygame.Rect(x,y,key_width,key_height)
-            
+
+            # ---- mouse ---- mouse ---- mouse ---- #
+
+            # num color when clicked
+            if hitbox.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+                pygame.draw.rect(screen, key_color_num_click,(x -7 ,y -7 ,key_width + 14 ,key_height + 14))
             # num color when hovered
-            if hitbox.collidepoint(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1]):
-                pygame.draw.rect(screen,key_color_num_hover,(x - 7,y - 7,key_width + 14,key_height + 14))
-            
+            elif hitbox.collidepoint(pygame.mouse.get_pos()) and not pygame.mouse.get_pressed()[0]:
+                pygame.draw.rect(screen, key_color_num_hover,(x -7,y - 7,key_width + 14,key_height + 14))
             # num normal condition
             else:
-                pygame.draw.rect(screen,key_color_num,(x,y,key_width,key_height))
-           
-            # num color when clicked
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                #if left mousebutton
-                if event.button == 1:
-                    mouse_pos_x = pygame.mouse.get_pos()[0]
-                    mouse_pos_y = pygame.mouse.get_pos()[1]
-                    if mouse_pos_x > x and mouse_pos_x < x + key_width and mouse_pos_y > y and mouse_pos_y < y + key_height:
-                        pygame.draw.rect(screen,key_color_num_click,(x -7 ,y -7 ,key_width + 14 ,key_height + 14))
+                pygame.draw.rect(screen, key_color_num,(x ,y ,key_width ,key_height ))      
 
+            #register the number / operator / function key  --AFTER MOUSECLICK--  just ONCE -----> into list
+            if hitbox.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+                pygame.draw.rect(screen, key_color_num_click,(x -7 ,y -7 ,key_width + 14 ,key_height + 14))
+                list_for_calc.append(zeichen)
+                print(list_for_calc) 
+
+            
+            # ---- keyboard ---- keyboard ---- keyboard ---- #
+            
             key = keyboard_keys[reihe_index][spalte_index]
-            #keyboard 
-            if isinstance(key, str):
-                if pressed_key_on_keyboard == key:
-                    pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width  ,key_height ))
-
-            if isinstance(key, int):
-                if pressed_key_special == key:
-                    pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width,key_height ))
-
-            if isinstance(key, list):
+            # special keys
+            DEL = keyboard_keys[0][1]
+            CLR = keyboard_keys[0][0]
+            EQL = keyboard_keys[-1][-1]
+            if isinstance(key, list): #eigentlich unnötig aber für meine dukumentation
                 if pressed_key_special in key or pressed_key_on_keyboard in key:
                     pygame.draw.rect(screen,key_color_num_click,(x ,y,key_width,key_height ))
-                        
+            #register the number / operator / function key  --AFTER KEYPRESS--  just ONCE -----> into list
+            if (pressed_key_special in key or pressed_key_on_keyboard in key) and key_pressed == True:
+                #backspace 
+                list_for_calc.append(zeichen)
+                print(list_for_calc)
+                key_pressed = False
+
+
 
             width_num, height_num = font.size(zeichen)
             dx_num = ( key_width - width_num ) // 2
@@ -134,6 +145,7 @@ while True:
 
             #reset key width
             key_width = (width - (columns+1) * margin) // columns
+    mouse_pos = (0,0)   
     pygame.display.flip()
     clock.tick(240)
     
